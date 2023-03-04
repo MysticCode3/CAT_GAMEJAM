@@ -1,4 +1,5 @@
 import pygame
+import math
 
 TYPES = {
     "fast": 0,
@@ -6,11 +7,13 @@ TYPES = {
     "shooter": 2,
 }
 
+
 class Enemy:
     def __init__(self, pos, type):
         """`type` - int"""
         self.pos = pos
         self.type = type
+        self.xVel = 0
         self.yVel = 0
         self.isGrounded = False
         self.isMovingLeft = False
@@ -20,10 +23,15 @@ class Enemy:
         self.touchingFloor = 0
 
         # CHANGABLE CHARACTERISTICS
-        self.dimensions = [25, 25]
-        self.vel = 350
-        self.jumpPower = 0;
-    
+        self.dimensions = [0, 0]
+        self.vel = 0
+        self.jumpPower = 0
+
+        if self.type == TYPES["fast"]:
+            self.dimensions = [20, 20]
+            self.vel = 975
+            self.jumpPower = 350
+
     def rect(self):
         return pygame.Rect(self.pos, self.dimensions)
 
@@ -31,38 +39,45 @@ class Enemy:
         if (self.type == TYPES["fast"]):
             pygame.draw.rect(screen, (50, 90, 150), self.rect())
         if (self.type == TYPES["fat"]):
-            pass #small
+            pass  # small
         if (self.type == TYPES["shooter"]):
-            pass #small
+            pass  # small
 
     def update(self, dt, floors, player):
         if self.isMovingLeft:
-            self.pos[0] -= self.vel * dt
-            self.isGrounded = False
-        
+            self.xVel -= self.vel * dt
+
         if self.isMovingRight:
-            self.pos[0] += self.vel * dt
+            self.xVel += self.vel * dt
+
+        self.pos[0] += self.xVel * dt
+        self.xVel *= math.pow(0.1, dt)
+        if abs(self.xVel) < 10:
+            self.xVel = 0
+        else:
             self.isGrounded = False
 
         for floor in floors:
             if (floor.rect().colliderect(self.rect())
-            and (self.pos[1] + self.dimensions[1]/2) <= (floor.pos[1] + floor.dimensions[1]/2)
-            and self.yVel >= 0):
+                and (self.pos[1] + self.dimensions[1]/2)
+                <= (floor.pos[1] + floor.dimensions[1]/2)
+                    and self.yVel >= 0):
                 self.isGrounded = True
                 self.touchingFloor = floor
                 self.yVel = 0
                 self.pos[1] = floor.pos[1] - self.dimensions[1] + 1
 
         if self.isJumping and self.isGrounded:
-            self.yVel -= 300
+            self.yVel -= self.jumpPower
             self.isGrounded = False
 
-        if not self.isGrounded: self.yVel += 350 * dt
+        if not self.isGrounded:
+            self.yVel += 350 * dt
         self.pos[1] += self.yVel * dt
 
         if (self.type == TYPES["fast"]):
             self.fastAi(player, floors)
-    
+
     def fastAi(self, player, floors):
         self.isJumping = False
 
@@ -77,6 +92,8 @@ class Enemy:
             self.isMovingLeft = False
             self.isMovingRight = False
 
-        if self.touchingFloor != 0 and self.isGrounded:
-            if self.pos[0] < self.touchingFloor.pos[0] + 10 or self.pos[0] > self.touchingFloor.pos[0] + self.touchingFloor.dimensions[0] - 10:
-                self.isJumping = True
+        if self.touchingFloor != 0 \
+            and self.isGrounded \
+                and self.pos[1] > player.pos[1] \
+                and abs(self.pos[1] - player.pos[1]) > 50:
+            self.isJumping = True
