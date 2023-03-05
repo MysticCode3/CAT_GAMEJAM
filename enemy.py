@@ -1,5 +1,6 @@
 import pygame
 import math
+from bullet import Bullet
 
 TYPES = {
     "fast": 0,
@@ -23,6 +24,9 @@ class Enemy:
         self.is_falling_timer = 0
         self.ground_floor = 0
         self.attack_timer = 0
+        self.bullet_list = []
+        self.bullet_img = pygame.image.load("assets/bullet_img.png")
+        self.bullet_img = pygame.transform.scale(self.bullet_img, (16, 16))
 
         # CHANGABLE CHARACTERISTICS
         self.dimensions = [0, 0]
@@ -34,25 +38,33 @@ class Enemy:
         self.image = None
 
         if self.type == TYPES["fast"]:
-            self.dimensions = [30, 30]
+            self.dimensions = [25, 25]
             self.vel = 975
             self.jump_power = 350
             self.health = 2
             self.damage = 1
-            self.attack_charge = 0.5
+            self.attack_charge = 1
             self.attack_timer = 4
             self.img = pygame.image.load("assets/fast_enemy.png")
             self.img = pygame.transform.scale(self.img, (self.dimensions))
         if self.type == TYPES["fat"]:
             self.dimensions = [45, 45]
-            self.vel = 595
+            self.vel = 605
             self.jump_power = 310
-            self.health = 4
+            self.health = 3
             self.damage = 3
-            self.attack_charge = 2
+            self.attack_charge = 3
             self.attack_timer = 5
             self.img = pygame.image.load("assets/fat_enemy.png")
             self.img = pygame.transform.scale(self.img, (self.dimensions))
+        if self.type == TYPES["shooter"]:
+            self.dimensions = [55, 55]
+            self.vel = 405
+            self.jump_power = 375
+            self.health = 5
+            self.damage = 2
+            self.attack_charge = 2
+            self.attack_timer = 0
 
     def rect(self):
         return pygame.Rect(self.pos, self.dimensions)
@@ -65,9 +77,12 @@ class Enemy:
             # pygame.draw.rect(screen, (150, 90, 50), self.rect())
             screen.blit(self.img, (self.rect().x, self.rect().y))
         if (self.type == TYPES["shooter"]):
-            pass  # same size as player
+            pygame.draw.rect(screen, (250, 250, 70), self.rect())
+            for bullet in self.bullet_list:
+                screen.blit(self.bullet_img,
+                            (bullet.rect().x, bullet.rect().y))
 
-    def update(self, dt, floors, player, player_bullets):
+    def update(self, dt, floors, player):
         self.is_falling_timer -= dt
 
         if self.is_moving_left:
@@ -108,20 +123,28 @@ class Enemy:
             self.is_grounded = False
             self.ground_floor = 0
 
-
         if not self.is_grounded:
             self.y_vel += 350 * dt
         self.pos[1] += self.y_vel * dt
 
         if self.type == TYPES["fast"] or self.type == TYPES["fat"]:
             self.homingAi(dt, player)
+        if self.type == TYPES["shooter"]:
+            self.shootingAi(dt, player)
 
-        for player_bullet in player_bullets:
+        for player_bullet in player.bullet_list:
             if player_bullet.rect().colliderect(self.rect()):
                 self.health -= player_bullet.damage
                 player_bullet.timer = 0
                 player_bullet.x = -50000
-        
+                player.shoot_cooldown -= 1
+
+        for bullet in self.bullet_list:
+            if bullet.timer <= 0:
+                self.bullet_list.remove(bullet)
+
+            bullet.update(floors, dt)
+
     def homingAi(self, dt, player):
         self.is_moving_left = False
         self.is_moving_right = False
@@ -141,7 +164,6 @@ class Enemy:
                 and self.pos[1] > player.pos[1] \
                 and abs(self.pos[1] - player.pos[1]) > 50:
             self.is_jumping = True
-        
 
         if self.ground_floor != 0 \
             and self.is_grounded \
@@ -151,6 +173,48 @@ class Enemy:
 
         self.attack_timer -= dt
         if self.attack_timer <= 0 \
-            and self.rect().colliderect(player.rect()):
+                and self.rect().colliderect(player.rect()):
             self.attack_timer = self.attack_charge
             player.health -= self.damage
+
+    def shootingAi(self, dt, player):
+        self.is_moving_left = False
+        self.is_moving_right = False
+        self.is_jumping = False
+        self.is_falling = False
+
+        if abs(player.pos[0]-self.pos[0]) > 5:
+            if player.pos[0] > self.pos[0]:
+                self.is_moving_right = True
+                self.is_moving_left = False
+            elif player.pos[0] < self.pos[0]:
+                self.is_moving_left = True
+                self.is_moving_right = False
+
+        if self.ground_floor != 0 \
+            and self.is_grounded \
+                and self.pos[1] > player.pos[1] \
+                and abs(self.pos[1] - player.pos[1]) > 50:
+            self.is_jumping = True
+
+        if self.ground_floor != 0 \
+            and self.is_grounded \
+                and self.pos[1] < player.pos[1] \
+                and abs(self.pos[1] - player.pos[1]) > 50:
+            self.is_falling = True
+
+        self.attack_timer -= dt
+        if self.attack_timer <= 0:
+            self.attack_timer = self.attack_charge
+            self.shoot(player.pos)
+
+    def shoot(self, player_pos):
+        self.bullet_list.append(
+            Bullet(
+                self.pos[0] + self.dimensions[0] / 2,
+                self.pos[1] + self.dimensions[1] / 2,
+                player_pos[0], player_pos[1],
+                250,
+                self.damage
+            )
+        )
