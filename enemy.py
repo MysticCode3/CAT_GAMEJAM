@@ -65,6 +65,8 @@ class Enemy:
             self.damage = 2
             self.attack_charge = 2
             self.attack_timer = 0
+            self.img = pygame.image.load("assets/shooter_enemy.png")
+            self.img = pygame.transform.scale(self.img, (self.dimensions))
 
     def rect(self):
         return pygame.Rect(self.pos, self.dimensions)
@@ -77,7 +79,8 @@ class Enemy:
             # pygame.draw.rect(screen, (150, 90, 50), self.rect())
             screen.blit(self.img, (self.rect().x, self.rect().y))
         if (self.type == TYPES["shooter"]):
-            pygame.draw.rect(screen, (250, 250, 70), self.rect())
+            # pygame.draw.rect(screen, (250, 250, 70), self.rect())
+            screen.blit(self.img, (self.rect().x, self.rect().y))
             for bullet in self.bullet_list:
                 screen.blit(self.bullet_img,
                             (bullet.rect().x, bullet.rect().y))
