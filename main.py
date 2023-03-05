@@ -84,6 +84,9 @@ def endless_mode():
             enemy.draw(screen)
         player.draw(screen)
 
+        score_txt = font.render(f"{score}", True, (212, 113, 93))
+        screen.blit(score_txt, (10, 40))
+
         pygame.display.update()
 
         for enemy in enemies:
@@ -111,6 +114,7 @@ def endless_mode():
             floors,
             [bullet for enemy in enemies for bullet in enemy.bullet_list]
         )
+
         clock.tick(60)
 
     print("Score: " + str(score))
