@@ -65,23 +65,26 @@ def endless_mode():
                 print("Score: " + str(score))
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     mouse_down = True
-            if event.type == pygame.MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     mouse_down = False
-            if event.type == pygame.MOUSEMOTION:
+            elif event.type == pygame.MOUSEMOTION:
                 cx, cy = pygame.mouse.get_pos()
 
         if mouse_down:
             player.shoot([cx, cy])
+
         screen.fill((255, 195, 150))
         for floor in floors:
             floor.draw(screen)
         for enemy in enemies:
             enemy.draw(screen)
         player.draw(screen)
+
+        pygame.display.update()
 
         for enemy in enemies:
             enemy.update(min(0.16, dt), floors, player)
@@ -108,7 +111,6 @@ def endless_mode():
             floors,
             [bullet for enemy in enemies for bullet in enemy.bullet_list]
         )
-        pygame.display.update()
         clock.tick(60)
 
     print("Score: " + str(score))
