@@ -85,8 +85,8 @@ def endless_mode(difficulty, high_score):
             )
         )
 
-    enemy_spawn_time = 8
-    enemy_spawn_timer = 8
+    enemy_spawn_time = 5
+    enemy_spawn_timer = 5
     mouse_down = False
     score = 0
 
@@ -149,17 +149,17 @@ def endless_mode(difficulty, high_score):
                 score += 1
 
         if enemy_spawn_timer <= 0:
-            player.shoot_cooldown_charge *= 0.965
+            player.shoot_cooldown_charge *= 0.99
             enemy_spawn_time *= 0.995
             enemy_spawn_timer = enemy_spawn_time
             spawn_enemy()
-            if score > 50 and difficulty >= DIFFICULTIES["easy"]:
+            if score > 25 and difficulty >= DIFFICULTIES["easy"]:
                 spawn_enemy()
-            if score > 100 and difficulty >= DIFFICULTIES["normal"]:
+            if score > 50 and difficulty >= DIFFICULTIES["normal"]:
+                spawn_enemy()
+            if score > 100 and difficulty >= DIFFICULTIES["hard"]:
                 spawn_enemy()
             if score > 250 and difficulty >= DIFFICULTIES["hard"]:
-                spawn_enemy()
-            if score > 500 and difficulty >= DIFFICULTIES["hard"]:
                 spawn_enemy()
 
         player.update(
