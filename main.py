@@ -94,7 +94,7 @@ def endless_mode(difficulty, high_score):
         if player.health <= 0 \
             or player.pos[0] + player.dimensions[0] < 0 \
                 or player.pos[0] > DIMENSIONS[0]:
-            return (difficulty, score)
+            return (difficulty, high_score)
 
         dt = time.time() - last_time
         last_time = time.time()
@@ -127,11 +127,10 @@ def endless_mode(difficulty, high_score):
             f"SCORE: {score}", True, (212, 113, 93))
         screen.blit(score_txt, (10, 45))
 
+        if score >= high_score:
+            high_score = score
         high_score_txt = font_extra_small.render(
-            f"HIGH SCORE: {score}", True, (212, 113, 93))
-        if high_score >= score:
-            high_score_txt = font_extra_small.render(
-                f"HIGH SCORE: {high_score}", True, (212, 113, 93))
+            f"HIGH SCORE: {high_score}", True, (212, 113, 93))
         screen.blit(high_score_txt, (10, 80))
 
         difficulty_text = font_extra_small.render(
