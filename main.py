@@ -23,10 +23,21 @@ def random_enemy():
 
 
 DIFFICULTIES = {
+    "EASY": 0,
+    "NORMAL": 1,
+    "HARD": 2,
     "easy": 0,
     "normal": 1,
     "hard": 2
 }
+
+
+def difficulty_as_string(difficulty_number):
+    for a, b in DIFFICULTIES.items():
+        if b == difficulty_number:
+            return a
+
+    return None
 
 
 def endless_mode(difficulty, high_score):
@@ -113,16 +124,19 @@ def endless_mode(difficulty, high_score):
         player.draw(screen)
 
         score_txt = font_extra_small.render(
-            f"Score: {score}", True, (212, 113, 93))
+            f"SCORE: {score}", True, (212, 113, 93))
         screen.blit(score_txt, (10, 45))
 
         high_score_txt = font_extra_small.render(
-            f"High Score: {score}", True, (212, 113, 93))
+            f"HIGH SCORE: {score}", True, (212, 113, 93))
         if high_score >= score:
             high_score_txt = font_extra_small.render(
-                f"High Score: {high_score}", True, (212, 113, 93))
-
+                f"HIGH SCORE: {high_score}", True, (212, 113, 93))
         screen.blit(high_score_txt, (10, 80))
+
+        difficulty_text = font_extra_small.render(
+            f"DIFFICULTY: {difficulty_as_string(difficulty)}", True, (212, 113, 93))
+        screen.blit(difficulty_text, (10, 115))
 
         pygame.display.update()
 
@@ -172,13 +186,6 @@ def main_menu(difficulty, high_scores):
     current_difficulty = difficulty
     mouse_down = False
 
-    def difficulty_as_string(difficulty_number):
-        for a, b in DIFFICULTIES.items():
-            if b == difficulty_number:
-                return a
-
-        return None
-
     is_running = True
     while is_running:
         high_score = high_scores[current_difficulty]
@@ -210,12 +217,12 @@ def main_menu(difficulty, high_scores):
 
         screen.fill((255, 195, 150))
 
-        title_txt_1 = font.render("Cat", True, (212, 113, 93))
-        title_txt_2 = font.render("Ball", True, (212, 113, 93))
+        title_txt_1 = font.render("CAT", True, (212, 113, 93))
+        title_txt_2 = font.render("BALL", True, (212, 113, 93))
 
         if high_score != 0:
             high_score_txt = font_extra_small.render(
-                f"High Score: {high_score}", True, (212, 113, 93))
+                f"HIGH SCORE: {high_score}", True, (212, 113, 93))
             screen.blit(
                 high_score_txt, (
                     DIMENSIONS[0]/2-high_score_txt.get_width()/2,
@@ -236,7 +243,7 @@ def main_menu(difficulty, high_scores):
                     (DIMENSIONS[0]/2-difficulty_button_txt.get_width()/2 + 3,
                      420))
 
-        start_button_txt = font_small.render("start", True, (212, 113, 93))
+        start_button_txt = font_small.render("START", True, (212, 113, 93))
         start_button.draw(screen)
         screen.blit(start_button_txt,
                     (DIMENSIONS[0]/2-start_button_txt.get_width()/2 + 3, 570))
