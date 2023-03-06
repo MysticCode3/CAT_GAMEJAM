@@ -83,7 +83,7 @@ def endless_mode(difficulty, high_score):
         if player.health <= 0 \
             or player.pos[0] + player.dimensions[0] < 0 \
                 or player.pos[0] > DIMENSIONS[0]:
-            return score
+            return (difficulty, score)
 
         dt = time.time() - last_time
         last_time = time.time()
@@ -112,12 +112,15 @@ def endless_mode(difficulty, high_score):
             enemy.draw(screen)
         player.draw(screen)
 
-        score_txt = font_extra_small.render(f"Score: {score}", True, (212, 113, 93))
+        score_txt = font_extra_small.render(
+            f"Score: {score}", True, (212, 113, 93))
         screen.blit(score_txt, (10, 45))
 
-        high_score_txt = font_extra_small.render(f"High Score: {score}", True, (212, 113, 93))
+        high_score_txt = font_extra_small.render(
+            f"High Score: {score}", True, (212, 113, 93))
         if high_score >= score:
-            high_score_txt = font_extra_small.render(f"High Score: {high_score}", True, (212, 113, 93))
+            high_score_txt = font_extra_small.render(
+                f"High Score: {high_score}", True, (212, 113, 93))
 
         screen.blit(high_score_txt, (10, 80))
 
@@ -153,7 +156,8 @@ def endless_mode(difficulty, high_score):
 
         clock.tick(60)
 
-def main_menu(high_score):
+
+def main_menu(difficulty, high_scores):
     global cx, cy
     difficulty_button = button.Button(
         [(243, 180, 134), (255, 200, 150), (239, 235, 234)],
@@ -165,18 +169,19 @@ def main_menu(high_score):
         DIMENSIONS[0]/2-200, 550,
         400, 100
     )
-    current_difficulty = 1
+    current_difficulty = difficulty
     mouse_down = False
 
     def difficulty_as_string(difficulty_number):
-        for a,b in DIFFICULTIES.items():
+        for a, b in DIFFICULTIES.items():
             if b == difficulty_number:
                 return a
-        
+
         return None
 
     is_running = True
     while is_running:
+        high_score = high_scores[current_difficulty]
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -193,13 +198,13 @@ def main_menu(high_score):
                 cx, cy = pygame.mouse.get_pos()
                 difficulty_button.update(cx, cy, mouse_down, False)
                 start_button.update(cx, cy, mouse_down, False)
-        
+
         if difficulty_button.is_clicked:
             current_difficulty += 1
             if current_difficulty > 2:
                 current_difficulty = 0
             difficulty_button.is_clicked = False
-        
+
         if start_button.is_clicked:
             return current_difficulty
 
@@ -209,27 +214,42 @@ def main_menu(high_score):
         title_txt_2 = font.render("Ball", True, (212, 113, 93))
 
         if high_score != 0:
-            high_score_txt = font_extra_small.render(f"High Score: {high_score}", True, (212, 113, 93))
-            screen.blit(high_score_txt, (DIMENSIONS[0]/2-high_score_txt.get_width()/2, DIMENSIONS[1] / 2 - 35))
+            high_score_txt = font_extra_small.render(
+                f"High Score: {high_score}", True, (212, 113, 93))
+            screen.blit(
+                high_score_txt, (
+                    DIMENSIONS[0]/2-high_score_txt.get_width()/2,
+                    DIMENSIONS[1] / 2 - 35
+                )
+            )
 
-        screen.blit(title_txt_1, (DIMENSIONS[0]/2-title_txt_1.get_width()/2 - 50, 100))
-        screen.blit(title_txt_2, (DIMENSIONS[0]/2-title_txt_1.get_width()/2 + 50, 220))
+        screen.blit(
+            title_txt_1, (DIMENSIONS[0]/2-title_txt_1.get_width()/2 - 50, 100))
+        screen.blit(
+            title_txt_2, (DIMENSIONS[0]/2-title_txt_1.get_width()/2 + 50, 220))
 
-        difficulty_button_txt = font_small.render(f"{difficulty_as_string(current_difficulty)}", True, (212, 113, 93)) 
+        difficulty_button_txt = font_small.render(
+            f"{difficulty_as_string(current_difficulty)}", True, (212, 113, 93)
+        )
         difficulty_button.draw(screen)
-        screen.blit(difficulty_button_txt, (DIMENSIONS[0]/2-difficulty_button_txt.get_width()/2 + 3, 420)) 
+        screen.blit(difficulty_button_txt,
+                    (DIMENSIONS[0]/2-difficulty_button_txt.get_width()/2 + 3,
+                     420))
 
-        start_button_txt = font_small.render("start", True, (212, 113, 93)) 
+        start_button_txt = font_small.render("start", True, (212, 113, 93))
         start_button.draw(screen)
-        screen.blit(start_button_txt, (DIMENSIONS[0]/2-start_button_txt.get_width()/2 + 3, 570)) 
-        
+        screen.blit(start_button_txt,
+                    (DIMENSIONS[0]/2-start_button_txt.get_width()/2 + 3, 570))
+
         clock.tick(60)
         pygame.display.update()
 
-difficulty = 0
-high_score = 0
+
+difficulty = 1
+high_score = [0, 0, 0]
 
 if __name__ == "__main__":
     while True:
-        difficulty = main_menu(high_score)
-        high_score = endless_mode(difficulty, high_score)
+        difficulty = main_menu(difficulty, high_score)
+        (difficulty, high_score[difficulty]) = endless_mode(
+            difficulty, high_score[difficulty])
