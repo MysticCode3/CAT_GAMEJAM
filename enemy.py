@@ -73,13 +73,10 @@ class Enemy:
 
     def draw(self, screen):
         if (self.type == TYPES["fast"]):
-            # pygame.draw.rect(screen, (50, 90, 150), self.rect())
             screen.blit(self.img, (self.rect().x, self.rect().y))
         if (self.type == TYPES["fat"]):
-            # pygame.draw.rect(screen, (150, 90, 50), self.rect())
             screen.blit(self.img, (self.rect().x, self.rect().y))
         if (self.type == TYPES["shooter"]):
-            # pygame.draw.rect(screen, (250, 250, 70), self.rect())
             screen.blit(self.img, (self.rect().x, self.rect().y))
             for bullet in self.bullet_list:
                 screen.blit(self.bullet_img,
