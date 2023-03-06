@@ -25,7 +25,7 @@ class Enemy:
         self.ground_floor = 0
         self.attack_timer = 0
         self.bullet_list = []
-        self.bullet_img = pygame.image.load("assets/bullet_img.png")
+        self.bullet_img = pygame.image.load("assets/bullet_enemy_img.png")
         self.bullet_img = pygame.transform.scale(self.bullet_img, (16, 16))
 
         # CHANGABLE CHARACTERISTICS
